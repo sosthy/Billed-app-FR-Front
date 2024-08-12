@@ -23,8 +23,17 @@ const rows = (data) => {
   return (data && data.length) ? data.map(bill => row(bill)).join("") : ""
 }
 
+const ordered = (data) => 
+{
+  const comparateur = (a, b) => { 
+    const date1 = new Date(a.date.replace(".", ""));
+    const date2 = new Date(b.date.replace(".", ""));
+    return date1 < date2 ? 1 : -1; 
+  }
+  return (data && data.length) ? data.sort(comparateur) : "";
+}
+
 export default ({ data: bills, loading, error }) => {
-  
   const modal = () => (`
     <div class="modal fade" id="modaleFile" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -69,7 +78,7 @@ export default ({ data: bills, loading, error }) => {
               </tr>
           </thead>
           <tbody data-testid="tbody">
-            ${rows(bills)}
+            ${rows(ordered(bills))}
           </tbody>
           </table>
         </div>
