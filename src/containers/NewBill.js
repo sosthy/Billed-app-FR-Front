@@ -25,6 +25,14 @@ export default class NewBill {
     formData.append('file', file)
     formData.append('email', email)
 
+    const type = file.type.replace('image/', '')
+    
+    if (!['jpg', 'jpeg', 'png'].includes(type))
+    {
+      this.document.querySelector(`input[data-testid="file"]`).value = null;
+      return;
+    }
+
     this.store
       .bills()
       .create({
