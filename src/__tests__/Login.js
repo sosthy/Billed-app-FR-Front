@@ -6,6 +6,9 @@ import LoginUI from "../views/LoginUI";
 import Login from "../containers/Login.js";
 import { ROUTES } from "../constants/routes";
 import { fireEvent, screen } from "@testing-library/dom";
+import mockStore from "../__mocks__/store"
+
+jest.mock("../app/store", () => mockStore)
 
 describe("Given that I am a user on login page", () => {
   describe("When I do not fill fields and I click on employee button Login In", () => {
@@ -24,6 +27,32 @@ describe("Given that I am a user on login page", () => {
       form.addEventListener("submit", handleSubmit);
       fireEvent.submit(form);
       expect(screen.getByTestId("form-employee")).toBeTruthy();
+    });
+    test("Then error occur", () => {
+      document.body.innerHTML = LoginUI();
+      const form = screen.getByTestId("form-employee");
+
+      // we have to mock navigation to test it
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+
+      let PREVIOUS_LOCATION = "";
+
+      const login = new Login({
+        document,
+        localStorage: window.localStorage,
+        onNavigate,
+        PREVIOUS_LOCATION,
+        store: null,
+      });
+
+      const handleSubmit = jest.fn(login.handleSubmitEmployee);
+      // login.createUser = jest.fn().mockResolvedValue({});
+      login.login = jest.fn().mockResolvedValue(Promise.reject(new Error("Erreur 500")));
+      form.addEventListener("submit", handleSubmit);
+      fireEvent.submit(form);
+      expect(handleSubmit).toHaveBeenCalled();
     });
   });
 
@@ -225,6 +254,32 @@ describe("Given that I am a user on login page", () => {
 
     test("It should renders HR dashboard page", () => {
       expect(screen.queryByText("Validations")).toBeTruthy();
+    });
+
+    test("Then error occur", () => {
+      document.body.innerHTML = LoginUI();
+      const form = screen.getByTestId("form-admin");
+
+      // we have to mock navigation to test it
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+
+      let PREVIOUS_LOCATION = "";
+
+      const login = new Login({
+        document,
+        localStorage: window.localStorage,
+        onNavigate,
+        PREVIOUS_LOCATION,
+        store: null,
+      });
+
+      const handleSubmit = jest.fn(login.handleSubmitAdmin);
+      login.login = jest.fn().mockResolvedValue(Promise.reject(new Error("Erreur 500")));
+      form.addEventListener("submit", handleSubmit);
+      fireEvent.submit(form);
+      expect(handleSubmit).toHaveBeenCalled();
     });
   });
 });
